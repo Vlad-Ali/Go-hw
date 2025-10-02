@@ -3,13 +3,14 @@ package library
 import (
 	"errors"
 	"fmt"
+	"library-app/internal/book"
 )
 
-type LibraryOperations interface {
-	AddBook(title string, author string) error
-	GetBook(title string, author string) (Book, error)
-	SetStorage(storage Storage)
-	SetIDGenerator(func(string) int)
+type Storage interface {
+	Add(book *book.Book) error
+	Remove(id int) error
+	GetById(id int) (*book.Book, error)
+	GetAll() []book.Book
 }
 
 type Library struct {
@@ -29,8 +30,8 @@ func getBookFullName(title string, author string) string {
 func (l *Library) AddBook(title string, author string) error {
 	fullName := getBookFullName(title, author)
 	bookId := l.idGenerator(fullName)
-	newBook := NewBook(title, author, bookId)
-	err := l.storage.add(newBook)
+	newBook := book.NewBook(title, author, bookId)
+	err := l.storage.Add(newBook)
 	if err != nil {
 		return fmt.Errorf("error adding book %s", fullName)
 	}
@@ -38,17 +39,17 @@ func (l *Library) AddBook(title string, author string) error {
 	return nil
 }
 
-func (l *Library) GetBook(title string, author string) (Book, error) {
+func (l *Library) GetBook(title string, author string) (book.Book, error) {
 	fullName := getBookFullName(title, author)
 	bookId, ok := l.titleIds[fullName]
 	if !ok {
-		return Book{}, errors.New("book not found")
+		return book.Book{}, errors.New("foundBook not found")
 	}
-	book, err := l.storage.getById(bookId)
+	foundBook, err := l.storage.GetById(bookId)
 	if err != nil {
-		return Book{}, err
+		return book.Book{}, err
 	}
-	return *book, nil
+	return *foundBook, nil
 }
 
 func (l *Library) SetStorage(storage Storage) {
@@ -57,22 +58,22 @@ func (l *Library) SetStorage(storage Storage) {
 
 func (l *Library) SetIDGenerator(generator func(string) int) {
 	l.idGenerator = generator
-	currentBooks := l.storage.getAll()
-	for _, book := range currentBooks {
-		err := l.storage.remove(book.id)
+	currentBooks := l.storage.GetAll()
+	for _, foundBook := range currentBooks {
+		err := l.storage.Remove(foundBook.GetId())
 		if err != nil {
 			fmt.Println(err)
 		}
 	}
-	for _, book := range currentBooks {
-		fullName := getBookFullName(book.title, book.author)
+	for _, foundBook := range currentBooks {
+		fullName := getBookFullName(foundBook.GetTitle(), foundBook.GetAuthor())
 		newBookId := l.idGenerator(fullName)
-		book.id = newBookId
-		err := l.storage.add(&book)
+		newBook := book.NewBook(foundBook.GetTitle(), foundBook.GetAuthor(), newBookId)
+		err := l.storage.Add(newBook)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		l.titleIds[fullName] = book.id
+		l.titleIds[fullName] = newBookId
 	}
 }

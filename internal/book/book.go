@@ -1,4 +1,4 @@
-package library
+package book
 
 type Book struct {
 	title  string
@@ -17,3 +17,7 @@ func (book *Book) GetTitle() string {
 func (book *Book) GetAuthor() string {
 	return book.author
 }
+
+func (book *Book) GetId() int { return book.id }
+
+func (book *Book) SetId(id int) { book.id = id }

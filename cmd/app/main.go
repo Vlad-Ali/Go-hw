@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	"library-app/library"
+	"library-app/internal/library"
+	"library-app/internal/storage/mapstorage"
+	"library-app/internal/storage/slicestorage"
 	"math/rand"
 )
 
@@ -18,7 +20,7 @@ func main() {
 		}
 		return hash
 	}
-	sliceStorage := library.NewSliceStorage()
+	sliceStorage := slicestorage.NewSliceStorage()
 	bookLibrary := library.NewLibrary(sliceStorage, firstGenerator)
 	books := []struct {
 		name   string
@@ -55,7 +57,7 @@ func main() {
 	} else {
 		fmt.Println(addedBook)
 	}
-	mapStorage := library.NewMapStorage()
+	mapStorage := mapstorage.NewMapStorage()
 	bookLibrary.SetStorage(mapStorage)
 	for _, book := range books {
 		err = bookLibrary.AddBook(book.name, book.author)
