@@ -1,0 +1,6 @@
+services:
+  go-app:
+    image: transfer-service:1.0
+    container_name: transfer-service-app
+    ports:
+      - "8080:8080"
