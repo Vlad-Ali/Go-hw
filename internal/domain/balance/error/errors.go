@@ -10,4 +10,5 @@ var (
 	ErrBalanceAlreadyExists        = errors.New("balance already exists")
 	ErrBalanceIDAlreadyExists      = errors.New("balance id already exists")
 	ErrBalanceNameValidationFailed = errors.New("failed to validate balance name")
+	ErrTransferBalanceToYourself   = errors.New("failed to transfer balance to yourself")
 )

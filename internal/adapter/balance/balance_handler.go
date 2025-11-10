@@ -190,7 +190,9 @@ func (b *BalanceHandler) Transfer(w http.ResponseWriter, r *http.Request) {
 	balance, err := b.balanceService.Transfer(r.Context(), userID, balanceTransferRequest.TargetEmail, money)
 	if err != nil {
 		slog.Error("Error transfering balance", "error", err)
-		if errors.Is(err, usererror.ErrUserIsNotFound) || errors.Is(err, balanceerror.ErrBalanceIsNotFound) {
+		if errors.Is(err, balanceerror.ErrTransferBalanceToYourself) {
+			http.Error(w, "It is forbidden to transfer to yourself", http.StatusBadRequest)
+		} else if errors.Is(err, usererror.ErrUserIsNotFound) || errors.Is(err, balanceerror.ErrBalanceIsNotFound) {
 			http.Error(w, "Target balance is not found", http.StatusNotFound)
 		} else if errors.Is(err, balanceerror.ErrBalanceIsNotEnough) {
 			http.Error(w, "Money is not enough on balance", http.StatusBadRequest)

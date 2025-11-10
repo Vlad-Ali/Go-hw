@@ -95,6 +95,11 @@ func (b *BalanceService) Transfer(ctx context.Context, senderUserID object.UserI
 		return nil, err
 	}
 
+	if targetUser.ID().ID() == senderUserID.ID() {
+		slog.Error("failed to transfer to yourself", "error", err)
+		return nil, balanceerror.ErrTransferBalanceToYourself
+	}
+
 	targetBalance, err := b.balanceRepo.GetByUserID(ctx, targetUser.ID().ID())
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to find target balance with user id: %v error: %v", targetUser.ID(), err))
